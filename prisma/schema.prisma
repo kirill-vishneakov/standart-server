@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      Int           @id @default(autoincrement())
+  full_name               String
+  email                   String        @unique
+  phone                   String
+  password                String
+  role                    String
+  appointmentsClient      Appointment[] @relation("ClientAppointments")
+  appointmentsEmployee    Appointment[] @relation("EmployeeAppointments")
+  scheduleSlots           ScheduleSlot[]
+  workLogs                WorkLog[]
+}
+
+model Service {
+  id               Int           @id @default(autoincrement())
+  name             String
+  duration_minutes Int
+  price            Decimal
+  appointments     Appointment[]
+}
+
+model Appointment {
+  id           Int      @id @default(autoincrement())
+  client_id    Int
+  employee_id  Int
+  service_id   Int
+  date_time    DateTime
+  status       String
+
+  client       User     @relation("ClientAppointments", fields: [client_id], references: [id])
+  employee     User     @relation("EmployeeAppointments", fields: [employee_id], references: [id])
+  service      Service  @relation(fields: [service_id], references: [id])
+  workLog      WorkLog?
+}
+
+model ScheduleSlot {
+  id           Int      @id @default(autoincrement())
+  employee_id  Int
+  start_time   DateTime
+  end_time     DateTime
+  is_available Boolean  @default(true)
+
+  employee     User     @relation(fields: [employee_id], references: [id])
+}
+
+model WorkLog {
+  id             Int         @id @default(autoincrement())
+  employee_id    Int
+  appointment_id Int @unique
+  report_date    DateTime
+  notes          String?
+
+  employee       User        @relation(fields: [employee_id], references: [id])
+  appointment    Appointment @relation(fields: [appointment_id], references: [id])
+}
