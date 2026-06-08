@@ -7,6 +7,7 @@ import appointmentRoutes from "./routes/appointments.js"
 import scheduleRoutes from "./routes/schedule.js"
 import reportRoutes from "./routes/reports.js"
 import userRoutes from "./routes/user.js"
+import { PrismaClient } from "@prisma/client"
 
 dotenv.config()
 
@@ -26,10 +27,16 @@ app.use("/schedule", scheduleRoutes)
 app.use("/reports", reportRoutes)
 app.use("/users", userRoutes)
 
+// TEST SERVER
+app.get("/", (req, res) => {
+  res.json({ status: "ok" })
+})
+
+// TEST DB
 app.get("/health/db", async (req, res) => {
   try {
-    const result = await prisma.user.findMany()
-    res.json({ ok: true, usersCount: result.length })
+    const users = await prisma.user.findMany()
+    res.json({ ok: true, usersCount: users.length })
   } catch (err) {
     console.error(err)
     res.status(500).json({ ok: false, error: err.message })
