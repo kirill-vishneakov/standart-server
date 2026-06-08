@@ -26,5 +26,15 @@ app.use("/schedule", scheduleRoutes)
 app.use("/reports", reportRoutes)
 app.use("/users", userRoutes)
 
+app.get("/health/db", async (req, res) => {
+  try {
+    const result = await prisma.user.findMany()
+    res.json({ ok: true, usersCount: result.length })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
+
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
